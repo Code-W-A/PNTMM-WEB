@@ -1,0 +1,18 @@
+node_modules/
+.next/
+out/
+.DS_Store
+*.tsbuildinfo
+.env*
+!.env.example
+
+# Firebase local
+*-debug.log
+.firebase/
+emulator-data/
+
+# Teste end-to-end
+.next-e2e/
+e2e/.auth/
+playwright-report/
+test-results/

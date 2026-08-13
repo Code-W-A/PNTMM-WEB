@@ -1,0 +1,19 @@
+rules_version = '2';
+
+// =============================================================================
+// PNȚMM Cluj — reguli Cloud Storage
+//
+// Accesul clientului este refuzat integral. Fotografiile sesizărilor se încarcă
+// prin API-ul server-side cu Admin SDK și se citesc numai prin URL semnat cu
+// expirare scurtă, generat pentru administratorii autorizați.
+//
+// Nu există niciun folder public în acest bucket.
+// =============================================================================
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

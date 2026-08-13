@@ -1,0 +1,24 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "incremental": false
+  },
+  "files": [
+    "../app/layout.tsx",
+    "../components/header.tsx",
+    "../components/footer.tsx",
+    "../components/layout/container.tsx",
+    "../components/shared/section-heading.tsx",
+    "../components/content/content-card.tsx",
+    "../config/site.ts",
+    "../types/index.ts",
+    "../types/content.ts",
+    "../types/forms.ts",
+    "../data/mock-content.ts",
+    "../repositories/content-repository.ts",
+    "../services/content-service.ts",
+    "../services/form-service.ts"
+  ],
+  "include": [],
+  "exclude": ["../node_modules", "../node_modules.pre-security-fix"]
+}

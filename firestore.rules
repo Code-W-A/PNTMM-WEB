@@ -1,0 +1,88 @@
+rules_version = '2';
+
+// =============================================================================
+// PNȚMM Cluj — reguli Firestore
+//
+// Model de securitate: toate scrierile trec prin API-ul server-side, care
+// folosește Firebase Admin SDK. Admin SDK ocolește aceste reguli, deci ele
+// descriu exclusiv ce poate face un client (browser sau aplicație mobilă).
+//
+// Regula implicită este refuzul. Clientul primește drept de citire numai
+// pentru conținutul destinat publicului: știri și evenimente publicate și
+// textele site-ului. Nicio colecție cu date personale nu este lizibilă public.
+// =============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isPublished() {
+      return resource.data.status == 'published';
+    }
+
+    // --- Conținut public -----------------------------------------------------
+
+    match /news/{newsId} {
+      allow read: if isPublished();
+      allow write: if false;
+    }
+
+    match /events/{eventId} {
+      allow read: if isPublished();
+      allow write: if false;
+    }
+
+    match /siteContent/{sectionId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // --- Date private --------------------------------------------------------
+    // Citirea și scrierea se fac exclusiv server-side, prin Admin SDK.
+
+    match /users/{uid} {
+      allow read, write: if false;
+    }
+
+    match /eventRegistrations/{registrationId} {
+      allow read, write: if false;
+    }
+
+    match /reports/{reportId} {
+      allow read, write: if false;
+    }
+
+    match /proposals/{proposalId} {
+      allow read, write: if false;
+    }
+
+    match /contactMessages/{messageId} {
+      allow read, write: if false;
+    }
+
+    match /interestSubmissions/{submissionId} {
+      allow read, write: if false;
+    }
+
+    match /deletionRequests/{requestId} {
+      allow read, write: if false;
+    }
+
+    match /pushTokens/{tokenId} {
+      allow read, write: if false;
+    }
+
+    match /notifications/{notificationId} {
+      allow read, write: if false;
+    }
+
+    match /adminActions/{actionId} {
+      allow read, write: if false;
+    }
+
+    // --- Refuz implicit pentru orice cale neprevăzută -------------------------
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
