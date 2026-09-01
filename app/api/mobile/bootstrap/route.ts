@@ -1,6 +1,7 @@
 import { jsonOk } from "@/lib/api/http"
 import { siteConfig } from "@/config/site"
 
+export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 export async function GET() {

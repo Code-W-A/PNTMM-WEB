@@ -1,6 +1,7 @@
 import { ApiError, handleApiError, jsonOk } from "@/lib/api/http"
 import { getNewsBySlug } from "@/services/content-service"
 
+export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
 export async function GET(
