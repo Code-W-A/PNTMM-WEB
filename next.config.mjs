@@ -11,6 +11,8 @@ const nextConfig = {
       "./node_modules/@google-cloud/firestore/**/*",
       "./node_modules/@google-cloud/storage/**/*",
       "./node_modules/@grpc/grpc-js/**/*",
+      "./node_modules/jose/**/*",
+      "./node_modules/jwks-rsa/**/*",
       "./node_modules/sharp/**/*",
     ],
   },

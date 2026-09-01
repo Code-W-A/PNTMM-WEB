@@ -77,6 +77,9 @@
     "vaul": "latest",
     "zod": "latest"
   },
+  "overrides": {
+    "jose": "5.10.0"
+  },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.1",
     "@playwright/test": "^1.62.1",
