@@ -1,6 +1,6 @@
 import { withAdmin } from "@/lib/api/admin-route"
+import { parseAdminContentBody } from "@/lib/api/admin-content"
 import { ApiError, jsonOk } from "@/lib/api/http"
-import { parseJsonBody, validate } from "@/lib/api/public-form"
 import { newsInputSchema } from "@/lib/validation/admin"
 import {
   deleteNews,
@@ -27,8 +27,12 @@ export async function GET(request: Request, { params }: Params) {
 
 export async function PATCH(request: Request, { params }: Params) {
   return withAdmin(request, "admin/news/[id] PATCH", async (admin) => {
-    const input = validate(newsInputSchema, await parseJsonBody(request))
-    await updateNews((await params).id, input, admin.uid)
+    const body = await parseAdminContentBody(request, newsInputSchema)
+    await updateNews((await params).id, body.input, admin.uid, {
+      file: body.file,
+      removeImage: body.removeImage,
+      keepExistingImage: body.multipart,
+    })
     return jsonOk({ success: true })
   })
 }

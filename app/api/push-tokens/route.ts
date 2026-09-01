@@ -8,7 +8,8 @@ import {
   parseJsonBody,
   validate,
 } from "@/lib/api/public-form"
-import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin"
+import { getAdminDb } from "@/lib/firebase/admin"
+import { getOptionalUser } from "@/lib/auth/require-user"
 import { COLLECTIONS } from "@/lib/firebase/collections"
 
 export const runtime = "nodejs"
@@ -17,6 +18,8 @@ export const dynamic = "force-dynamic"
 const schema = z.object({
   token: z.string().trim().min(20, "Token invalid."),
   platform: z.enum(["ios", "android", "web"]),
+  provider: z.enum(["fcm", "expo"]).default("fcm"),
+  installationId: z.string().trim().min(8).max(160).optional(),
   enabled: z.boolean().default(true),
 })
 
@@ -37,36 +40,55 @@ export async function POST(request: Request) {
 
     const data = validate(schema, await parseJsonBody(request))
 
-    let uid: string | undefined
-    const bearer = request.headers.get("authorization")
+    const user = await getOptionalUser(request)
+    let enabled = data.enabled
 
-    if (bearer?.toLowerCase().startsWith("bearer ")) {
-      try {
-        const decoded = await getAdminAuth().verifyIdToken(
-          bearer.slice(7).trim(),
-        )
-        uid = decoded.uid
-      } catch {
-        // Token invalid: dispozitivul se înregistrează fără utilizator asociat.
+    if (user && enabled) {
+      const profile = await getAdminDb()
+        .collection(COLLECTIONS.users)
+        .doc(user.uid)
+        .get()
+      if (profile.data()?.notificationPreferences?.general === false) {
+        enabled = false
       }
     }
 
-    await getAdminDb()
-      .collection(COLLECTIONS.pushTokens)
-      .doc(documentId(data.token))
-      .set(
-        {
-          token: data.token,
-          platform: data.platform,
-          enabled: data.enabled,
-          uid,
-          updatedAt: FieldValue.serverTimestamp(),
-          createdAt: FieldValue.serverTimestamp(),
-        },
-        { merge: true },
-      )
+    const collection = getAdminDb().collection(COLLECTIONS.pushTokens)
+    const reference = collection.doc(documentId(data.token))
+    const existing = await reference.get()
 
-    return jsonOk({ success: true }, 201)
+    if (data.installationId) {
+      const previous = await collection
+        .where("installationId", "==", data.installationId)
+        .get()
+      const stale = previous.docs.filter((document) => document.id !== reference.id)
+      if (stale.length > 0) {
+        const batch = getAdminDb().batch()
+        stale.forEach((document) => {
+          batch.update(document.ref, {
+            enabled: false,
+            updatedAt: FieldValue.serverTimestamp(),
+          })
+        })
+        await batch.commit()
+      }
+    }
+
+    await reference.set(
+      {
+        token: data.token,
+        platform: data.platform,
+        provider: data.provider,
+        installationId: data.installationId,
+        enabled,
+        uid: user?.uid ?? FieldValue.delete(),
+        updatedAt: FieldValue.serverTimestamp(),
+        ...(!existing.exists ? { createdAt: FieldValue.serverTimestamp() } : {}),
+      },
+      { merge: true },
+    )
+
+    return jsonOk({ success: true, enabled }, existing.exists ? 200 : 201)
   } catch (error) {
     return handleApiError(error, "push-tokens POST")
   }

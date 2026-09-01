@@ -5,6 +5,7 @@ import {
   chooseOption,
   confirmDialog,
   expectToast,
+  onePixelPng,
   rowWith,
   unique,
 } from "../fixtures/helpers"
@@ -159,6 +160,42 @@ test.describe("CRUD știri", () => {
     await page.getByLabel("Caută în știri").fill(slug)
     await expect(rowWith(page, title)).toBeVisible()
     await expect(rowWith(page, SEED.publishedNews.title)).toBeHidden()
+  })
+
+  test("imaginea de copertă se încarcă, se vede la editare și poate fi eliminată", async ({
+    page,
+  }) => {
+    const slug = unique("stire-imagine")
+    const title = `Știre cu imagine ${slug}`
+
+    await page.goto("/admin/stiri/nou")
+    await fillNewsForm(page, { slug, title, status: "Publicat" })
+    await page.getByLabel("Imagine de copertă").setInputFiles({
+      name: "coperta.png",
+      mimeType: "image/png",
+      buffer: onePixelPng(),
+    })
+    await expect(page.getByAltText("Previzualizare copertă")).toBeVisible()
+    await page.getByRole("button", { name: "Creează știrea" }).click()
+    await page.waitForURL("**/admin/stiri")
+
+    await rowWith(page, title).getByRole("link", { name: "Editează știrea" }).click()
+    await expect(page.getByAltText("Previzualizare copertă")).toBeVisible()
+
+    await page.goto(`/stiri/${slug}`)
+    await expect(
+      page.getByRole("img", { name: `Imagine pentru ${title}` }),
+    ).toBeVisible()
+
+    await page.goto("/admin/stiri")
+    await rowWith(page, title).getByRole("link", { name: "Editează știrea" }).click()
+    await page.getByRole("button", { name: "Elimină imaginea" }).click()
+    await expect(page.getByAltText("Previzualizare copertă")).toBeHidden()
+    await page.getByRole("button", { name: "Salvează modificările" }).click()
+    await expectToast(page, "Știrea a fost actualizată.")
+
+    await page.reload()
+    await expect(page.getByAltText("Previzualizare copertă")).toBeHidden()
   })
 
   test("ștergerea scoate articolul din listă și de pe website", async ({

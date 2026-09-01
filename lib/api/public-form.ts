@@ -6,6 +6,10 @@ import type { z } from "zod"
 import { verifyAppCheck } from "@/lib/api/app-check"
 import { ApiError, handleApiError, jsonOk } from "@/lib/api/http"
 import { currentDataMode } from "@/lib/data-mode"
+import {
+  getOptionalUser,
+  type UserContext,
+} from "@/lib/auth/require-user"
 import { getAdminDb, isFirebaseAdminConfigured } from "@/lib/firebase/admin"
 
 export function assertBackendAvailable() {
@@ -47,7 +51,7 @@ interface PublicFormOptions<T> {
   collection: string
   context: string
   /** `privacyAccepted` este o condiție de trimitere, nu un câmp de stocat. */
-  toDocument: (data: T) => Record<string, unknown>
+  toDocument: (data: T, user: UserContext | null) => Record<string, unknown>
 }
 
 /**
@@ -67,12 +71,13 @@ export async function submitPublicForm<T>({
     assertBackendAvailable()
 
     const data = validate(schema, await parseJsonBody(request))
+    const user = await getOptionalUser(request)
     const dataMode = currentDataMode()
 
     const reference = await getAdminDb()
       .collection(collection)
       .add({
-        ...toDocument(data),
+        ...toDocument(data, user),
         dataMode,
         createdAt: FieldValue.serverTimestamp(),
       })

@@ -3,11 +3,16 @@ rules_version = '2';
 // =============================================================================
 // PNȚMM Cluj — reguli Cloud Storage
 //
-// Accesul clientului este refuzat integral. Fotografiile sesizărilor se încarcă
-// prin API-ul server-side cu Admin SDK și se citesc numai prin URL semnat cu
-// expirare scurtă, generat pentru administratorii autorizați.
+// Accesul clientului (SDK Firebase) este refuzat integral. Încărcarea se face
+// exclusiv prin API-ul server-side cu Admin SDK:
 //
-// Nu există niciun folder public în acest bucket.
+// - Fotografiile sesizărilor rămân private (`reports/...`) și se citesc numai
+//   prin URL semnat cu expirare scurtă, pentru administratori.
+// - Coperțile de știri și evenimente (`content/...`) sunt făcute publice de
+//   Admin SDK (ACL GCS). Regulile de mai jos nu se aplică URL-ului public
+//   storage.googleapis.com; vizitatorii nu au totuși drept de scriere.
+//
+// Numele fișierelor sunt generate server-side, niciodată preluate de la client.
 // =============================================================================
 
 service firebase.storage {

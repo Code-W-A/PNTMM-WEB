@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 
-import { EditorialMedia } from "@/components/shared/editorial-media"
+import { COVER_ASPECT, EditorialMedia } from "@/components/shared/editorial-media"
 import type { NewsItem } from "@/types"
 
 const dateFormatter = new Intl.DateTimeFormat("ro-RO", {
@@ -17,7 +17,7 @@ export function NewsCard({ item }: { item: NewsItem }) {
         imageUrl={item.imageUrl}
         alt={`Imagine pentru ${item.title}`}
         label={item.category}
-        aspect="card"
+        aspect={COVER_ASPECT}
         className="rounded-none shadow-none"
       />
       <div className="flex flex-1 flex-col p-6">

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 
 import { Container } from "@/components/layout/container"
 import { NewsList } from "@/components/news/news-list"
+import { COVER_ASPECT } from "@/components/shared/editorial-media"
 import { PageHero } from "@/components/shared/page-hero"
 import { SectionHeading } from "@/components/shared/section-heading"
 import { siteConfig } from "@/config/site"
@@ -77,6 +78,7 @@ export default async function NewsDetailPage({
           imageUrl={item.imageUrl}
           mediaAlt={`Imagine pentru ${item.title}`}
           mediaLabel={item.category}
+          mediaAspect={COVER_ASPECT}
           compact
           meta={
             <p className="font-semibold text-white/80">

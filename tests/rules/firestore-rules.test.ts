@@ -76,8 +76,6 @@ beforeEach(async () => {
       title: "Ciornă",
       status: "draft",
     })
-    await setDoc(doc(db, "siteContent/home"), { fields: { heroTitle: "Acasă" } })
-
     for (const collection of PRIVATE_COLLECTIONS) {
       await setDoc(doc(db, `${collection}/doc-1`), { email: "ion@exemplu.ro" })
     }
@@ -105,11 +103,6 @@ describe("conținut public", () => {
     await assertFails(getDoc(doc(db, "events/draft-1")))
   })
 
-  it("permite citirea conținutului administrat al site-ului", async () => {
-    const db = testEnv.unauthenticatedContext().firestore()
-    await assertSucceeds(getDoc(doc(db, "siteContent/home")))
-  })
-
   it("refuză scrierea în conținutul public", async () => {
     const db = testEnv.unauthenticatedContext().firestore()
 
@@ -117,7 +110,6 @@ describe("conținut public", () => {
       setDoc(doc(db, "news/published-1"), { title: "Modificat" }),
     )
     await assertFails(setDoc(doc(db, "events/nou"), { status: "published" }))
-    await assertFails(setDoc(doc(db, "siteContent/home"), { fields: {} }))
   })
 })
 

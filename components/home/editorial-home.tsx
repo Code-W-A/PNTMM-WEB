@@ -10,7 +10,7 @@ import {
 
 import { CinematicHero } from "@/components/home/cinematic-hero"
 import { Container } from "@/components/layout/container"
-import { EditorialMedia } from "@/components/shared/editorial-media"
+import { EditorialMedia, COVER_ASPECT } from "@/components/shared/editorial-media"
 import { Button } from "@/components/ui/button"
 import { isUpcomingEvent, prioritizeHomepageEvents } from "@/lib/events"
 import type { Event, NewsItem } from "@/types"
@@ -302,7 +302,7 @@ export function EditorialHome({
                     imageUrl={featuredNews.imageUrl}
                     alt={`Imagine pentru ${featuredNews.title}`}
                     label="Știre"
-                    aspect="landscape"
+                    aspect={COVER_ASPECT}
                     className="radius-card"
                   />
                   <div className="mt-6 max-w-3xl">
@@ -333,7 +333,7 @@ export function EditorialHome({
                         imageUrl={item.imageUrl}
                         alt={`Imagine pentru ${item.title}`}
                         label={`Știre ${String(index + 2).padStart(2, "0")}`}
-                        aspect="card"
+                        aspect={COVER_ASPECT}
                         className="rounded-xl shadow-none"
                       />
                       <div className="min-w-0">
@@ -394,7 +394,7 @@ export function EditorialHome({
                   imageUrl={featuredEvent.imageUrl}
                   alt={`Imagine pentru ${featuredEvent.title}`}
                   label="Eveniment"
-                  aspect="landscape"
+                  aspect={COVER_ASPECT}
                   className="rounded-none shadow-none"
                 />
                 <div className="p-6 sm:p-8">
@@ -419,7 +419,7 @@ export function EditorialHome({
                       {featuredEvent.title}
                     </Link>
                   </h3>
-                  <p className="mt-4 leading-7 text-white/70">
+                  <p className="mt-4 line-clamp-3 leading-7 text-white/70">
                     {featuredEvent.description}
                   </p>
                   <p className="mt-5 flex items-center gap-2 text-sm text-white/65">
@@ -453,8 +453,8 @@ export function EditorialHome({
                         imageUrl={event.imageUrl}
                         alt={`Imagine pentru ${event.title}`}
                         label={`Eveniment ${index + 2}`}
-                        aspect="card"
-                        className="h-full min-h-48 !aspect-auto rounded-none shadow-none"
+                        aspect={COVER_ASPECT}
+                        className="rounded-none shadow-none sm:h-full sm:min-h-48 sm:!aspect-auto"
                       />
                       <div className="flex flex-col justify-center p-6">
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">

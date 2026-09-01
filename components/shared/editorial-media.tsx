@@ -10,6 +10,9 @@ export type EditorialMediaAspect =
   | "portrait"
   | "card"
 
+/** Raportul de copertă pentru știri și evenimente: 3:2, pe site și în aplicație. */
+export const COVER_ASPECT: EditorialMediaAspect = "card"
+
 interface MediaPlaceholderProps {
   alt: string
   label?: string
@@ -29,6 +32,7 @@ const aspectClasses: Record<EditorialMediaAspect, string> = {
   hero: "aspect-[16/10] sm:aspect-[16/9] lg:aspect-[21/9]",
   landscape: "aspect-[16/10]",
   portrait: "aspect-[4/5]",
+  // Copertă știri/evenimente — același cadru ca în aplicația mobilă.
   card: "aspect-[3/2]",
 }
 

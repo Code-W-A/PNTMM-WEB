@@ -5,6 +5,7 @@ import { ApiError, handleApiError, jsonOk } from "@/lib/api/http"
 import { assertBackendAvailable, validate } from "@/lib/api/public-form"
 import { currentDataMode } from "@/lib/data-mode"
 import { getAdminDb } from "@/lib/firebase/admin"
+import { getOptionalUser } from "@/lib/auth/require-user"
 import { COLLECTIONS } from "@/lib/firebase/collections"
 import { uploadReportPhoto } from "@/lib/storage/report-photo"
 import { reportSchema } from "@/lib/validation/forms"
@@ -52,6 +53,7 @@ export async function POST(request: Request) {
 
     const data = validate(reportSchema, readFormData(form))
     const photo = readSinglePhoto(form)
+    const user = await getOptionalUser(request)
 
     const db = getAdminDb()
     const reference = db.collection(COLLECTIONS.reports).doc()
@@ -64,7 +66,8 @@ export async function POST(request: Request) {
 
     await reference.set({
       name: data.name,
-      email: data.email,
+      email: user?.email ?? data.email,
+      uid: user?.uid,
       subject: data.subject,
       description: data.description,
       photoPath,

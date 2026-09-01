@@ -5,6 +5,7 @@ import { CalendarDays, Clock, MapPin } from "lucide-react"
 import { EventList } from "@/components/events/event-list"
 import { EventRegistrationCta } from "@/components/events/event-registration-cta"
 import { Container } from "@/components/layout/container"
+import { COVER_ASPECT } from "@/components/shared/editorial-media"
 import { PageHero } from "@/components/shared/page-hero"
 import { SectionHeading } from "@/components/shared/section-heading"
 import { siteConfig } from "@/config/site"
@@ -80,6 +81,7 @@ export default async function EventDetailPage({
           imageUrl={event.imageUrl}
           mediaAlt={`Imagine pentru ${event.title}`}
           mediaLabel={event.location}
+          mediaAspect={COVER_ASPECT}
           compact
           meta={
             <span className="font-semibold">

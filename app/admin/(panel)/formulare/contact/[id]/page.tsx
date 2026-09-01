@@ -49,6 +49,10 @@ export default async function ContactMessagePage({
                   </a>
                 ),
               },
+              {
+                label: "Cont asociat",
+                value: message.uid ?? "Fără cont autentificat",
+              },
               { label: "Primit la", value: formatDateTime(message.createdAt) },
             ]}
           />

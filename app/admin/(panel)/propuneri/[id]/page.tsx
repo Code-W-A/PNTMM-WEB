@@ -65,6 +65,10 @@ export default async function ProposalDetailPage({
                   label: "Primită la",
                   value: formatDateTime(proposal.createdAt),
                 },
+                {
+                  label: "Cont asociat",
+                  value: proposal.uid ?? "Fără cont autentificat",
+                },
               ]}
             />
           </SectionCard>

@@ -65,6 +65,11 @@ export async function GET(
         { header: "Nume", value: (row) => row.name },
         { header: "Email", value: (row) => row.email },
         { header: "Telefon", value: (row) => row.phone },
+        { header: "UID cont", value: (row) => row.uid },
+        {
+          header: "Sursă",
+          value: (row) => (row.uid ? "Aplicație mobilă" : "Website"),
+        },
         { header: "Înscris la", value: (row) => row.createdAt },
         { header: "Regim date", value: (row) => row.dataMode },
       ]
@@ -81,6 +86,7 @@ export async function GET(
         { header: "ID", value: (row) => row.id },
         { header: "Nume", value: (row) => row.name },
         { header: "Email", value: (row) => row.email },
+        { header: "UID cont", value: (row) => row.uid },
         { header: "Subiect", value: (row) => row.subject },
         { header: "Descriere", value: (row) => row.description },
         { header: "Status", value: (row) => statusLabel(row.status) },
@@ -97,6 +103,7 @@ export async function GET(
         { header: "ID", value: (row) => row.id },
         { header: "Nume", value: (row) => row.name },
         { header: "Email", value: (row) => row.email },
+        { header: "UID cont", value: (row) => row.uid },
         { header: "Titlu", value: (row) => row.title },
         { header: "Descriere", value: (row) => row.description },
         { header: "Status", value: (row) => statusLabel(row.status) },

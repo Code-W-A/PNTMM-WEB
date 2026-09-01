@@ -92,6 +92,7 @@ export function RegistrationsTable({
                 <TableHead>Nume</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Telefon</TableHead>
+                <TableHead>Sursă</TableHead>
                 <TableHead>Înscris la</TableHead>
               </TableRow>
             </TableHeader>
@@ -109,6 +110,9 @@ export function RegistrationsTable({
                   </TableCell>
                   <TableCell>
                     <CellMuted>{item.phone ?? "—"}</CellMuted>
+                  </TableCell>
+                  <TableCell>
+                    <CellMuted>{item.uid ? "Aplicație mobilă" : "Website"}</CellMuted>
                   </TableCell>
                   <TableCell>
                     <CellMuted>{formatDateTime(item.createdAt)}</CellMuted>

@@ -11,9 +11,10 @@ export async function POST(request: Request) {
     schema: contactSchema,
     collection: COLLECTIONS.contactMessages,
     context: "forms/contact",
-    toDocument: ({ name, email, subject, message }) => ({
+    toDocument: ({ name, email, subject, message }, user) => ({
       name,
-      email,
+      email: user?.email ?? email,
+      uid: user?.uid,
       subject,
       message,
     }),

@@ -53,7 +53,10 @@ export default async function EventsPage() {
               Evenimente trecute
             </h2>
             <div className="mt-8">
-              <EventList items={pastEvents} />
+              <EventList
+                items={pastEvents}
+                emptyMessage="Nu sunt evenimente încheiate de afișat."
+              />
             </div>
           </div>
         </Container>

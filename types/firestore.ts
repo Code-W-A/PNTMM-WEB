@@ -35,6 +35,7 @@ export interface UserDoc extends Timestamps {
   uid: string
   email: string | null
   displayName: string | null
+  phone?: string
   status: UserStatus
   notificationPreferences: {
     general: boolean
@@ -48,6 +49,8 @@ export interface NewsDoc extends Timestamps {
   excerpt: string
   content: string
   imageUrl?: string
+  /** Cale Storage internă, folosită la înlocuire și ștergere. */
+  imagePath?: string
   category: string
   publishedAt: string
   status: ContentStatus
@@ -59,6 +62,8 @@ export interface EventDoc extends Timestamps {
   title: string
   description: string
   imageUrl?: string
+  /** Cale Storage internă, folosită la înlocuire și ștergere. */
+  imagePath?: string
   startDate: string
   endDate?: string
   location: string
@@ -74,6 +79,7 @@ export interface EventRegistrationDoc {
   name: string
   email: string
   phone?: string
+  uid?: string
   dataMode: DataMode
   createdAt: string
 }
@@ -82,6 +88,7 @@ export interface ReportDoc extends Timestamps {
   id: string
   name: string
   email: string
+  uid?: string
   subject: string
   description: string
   /** Cale în Cloud Storage, nu URL public. Accesul se face prin URL semnat. */
@@ -94,6 +101,7 @@ export interface ProposalDoc extends Timestamps {
   id: string
   name: string
   email: string
+  uid?: string
   title: string
   description: string
   status: WorkflowStatus
@@ -104,6 +112,7 @@ export interface ContactMessageDoc {
   id: string
   name: string
   email: string
+  uid?: string
   subject: string
   message: string
   dataMode: DataMode
@@ -144,11 +153,16 @@ export interface NotificationDoc {
   createdBy: string
   recipientCount?: number
   failureCount?: number
+  /** Receipt Expo -> ID document token; intern, pentru invalidarea tokenurilor expirate. */
+  expoReceiptTokens?: Record<string, string>
+  expoReceiptsPending?: boolean
 }
 
 export interface PushTokenDoc extends Timestamps {
   id: string
   token: string
+  provider?: "fcm" | "expo"
+  installationId?: string
   platform: "ios" | "android" | "web"
   uid?: string
   enabled: boolean

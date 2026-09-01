@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { ArrowRight, CalendarDays, MapPin } from "lucide-react"
 
-import { EditorialMedia } from "@/components/shared/editorial-media"
+import { COVER_ASPECT, EditorialMedia } from "@/components/shared/editorial-media"
 import type { Event } from "@/types"
 
 const dateFormatter = new Intl.DateTimeFormat("ro-RO", {
@@ -19,7 +19,7 @@ export function EventCard({ event }: { event: Event }) {
         imageUrl={event.imageUrl}
         alt={`Imagine pentru ${event.title}`}
         label={event.location}
-        aspect="card"
+        aspect={COVER_ASPECT}
         className="rounded-none shadow-none"
       />
       <div className="flex flex-1 flex-col p-6">
@@ -41,7 +41,7 @@ export function EventCard({ event }: { event: Event }) {
             {event.location}
           </p>
         </div>
-        <p className="mt-5 flex-1 leading-7 text-muted-foreground">
+        <p className="mt-5 line-clamp-3 leading-7 text-muted-foreground">
           {event.description}
         </p>
         <Link

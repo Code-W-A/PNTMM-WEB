@@ -1,6 +1,6 @@
 import { withAdmin } from "@/lib/api/admin-route"
+import { parseAdminContentBody } from "@/lib/api/admin-content"
 import { jsonOk } from "@/lib/api/http"
-import { parseJsonBody, validate } from "@/lib/api/public-form"
 import { newsInputSchema } from "@/lib/validation/admin"
 import { createNews, listAllNews } from "@/services/admin/content-admin"
 
@@ -16,8 +16,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   return withAdmin(request, "admin/news POST", async (admin) => {
-    const input = validate(newsInputSchema, await parseJsonBody(request))
-    const id = await createNews(input, admin.uid)
+    const body = await parseAdminContentBody(request, newsInputSchema)
+    const id = await createNews(body.input, admin.uid, {
+      file: body.file,
+      keepExistingImage: body.multipart,
+    })
     return jsonOk({ id }, 201)
   })
 }

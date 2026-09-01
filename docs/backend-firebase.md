@@ -1,5 +1,10 @@
 # Backend Firebase și panou de administrare — PNȚMM Cluj
 
+Documente operaționale:
+
+- [Ghidul panoului de administrare](./ghid-administrare.md)
+- [Matricea de acoperire a Anexei 1](./matrice-contractuala.md)
+
 Documentul descrie ce a fost implementat, cum se pornește proiectul și ce
 rămâne de configurat manual în Firebase Console. Interfața publică nu a fost
 redesenată: paginile existente au fost conectate la date reale.
@@ -14,8 +19,9 @@ citește doar conținutul publicat, iar SDK-ul client Firebase este folosit excl
 pentru autentificarea administratorului. Admin SDK rulează server-side și ocolește
 regulile, deci autorizarea este responsabilitatea fiecărui endpoint.
 
-Aceeași suprafață server servește viitoarele aplicații mobile: endpoint-urile
-admin acceptă și `Authorization: Bearer <idToken>`, nu doar cookie-ul de sesiune.
+Aceeași suprafață server deservește aplicația Expo din
+`../expo-mobile-app`. API-urile mobile folosesc `Authorization: Bearer <idToken>`;
+panoul admin continuă să folosească sesiunea HttpOnly.
 
 ## Colecții Firestore
 
@@ -23,7 +29,6 @@ admin acceptă și `Authorization: Bearer <idToken>`, nu doar cookie-ul de sesiu
 | --- | --- | --- |
 | `news` | Articole, câmp `status`: `draft` sau `published` | Doar `status == "published"` |
 | `events` | Evenimente, cu `registrationEnabled` | Doar `status == "published"` |
-| `siteContent` | Neutilizată. A rămas din CMS-ul eliminat; textele paginilor publice stau în cod, în `data/*-content.ts` și `lib/site-content/sections.ts` | Da |
 | `eventRegistrations` | Înscrieri la evenimente | Nu |
 | `reports` | Sesizări, cu cel mult o fotografie | Nu |
 | `proposals` | Propuneri | Nu |
@@ -31,7 +36,7 @@ admin acceptă și `Authorization: Bearer <idToken>`, nu doar cookie-ul de sesiu
 | `interestSubmissions` | Formularul „Implică-te” | Nu |
 | `deletionRequests` | Cereri de ștergere a contului | Nu |
 | `users` | Profiluri de utilizator pentru aplicațiile mobile | Nu |
-| `pushTokens` | Tokenuri FCM per dispozitiv | Nu |
+| `pushTokens` | Tokenuri FCM sau Expo per dispozitiv, cu provider, installationId, UID opțional și stare | Nu |
 | `notifications` | Istoricul notificărilor trimise | Nu |
 | `adminActions` | Log tehnic minimal al operațiunilor de administrare | Nu |
 
@@ -51,8 +56,24 @@ Indexuri compuse declarate: `news(status, publishedAt)`, `events(status, startDa
 folosite de formularele din interfață ([lib/validation/forms.ts](../lib/validation/forms.ts))
 și scriu prin Admin SDK. `report` primește `multipart/form-data` pentru fotografie.
 
-`POST /api/push-tokens` înregistrează un token FCM. Dacă cererea include un ID
-token valid, dispozitivul este asociat contului; altfel se salvează anonim.
+`POST /api/push-tokens` înregistrează un token FCM sau Expo. Tokenul poate fi
+asociat contului prin ID token, iar `installationId` dezactivează tokenurile
+vechi ale aceleiași instalări. Preferința generală oprită în profil împiedică
+reactivarea accidentală.
+
+### Aplicația mobilă — `app/api/mobile/*`
+
+- `GET /api/mobile/bootstrap` — identitate, contact, social și linkuri juridice;
+- `GET /api/mobile/news`, `GET /api/mobile/news/[slug]`;
+- `GET /api/mobile/events`, `GET /api/mobile/events/[slug]`;
+- `GET|PATCH /api/mobile/profile` — protejat prin `requireUser`;
+- `GET /api/mobile/event-registrations/[eventId]` — starea înscrierii contului.
+
+`requireUser` verifică ID tokenul Firebase cu revocation check și este separat
+de `requireAdmin`: un utilizator mobil autentificat nu dobândește acces la
+panoul administrativ. Formularele existente rămân publice pentru website, dar
+păstrează `uid` atunci când primesc un Bearer token valid. Înscrierile mobile
+folosesc un ID determinist derivat din eveniment și UID, deci sunt idempotente.
 
 ### Autentificare
 
@@ -62,8 +83,7 @@ token valid, dispozitivul este asociat contului; altfel se salvează anonim.
 ### Administrare — `app/api/admin/*`
 
 `news`, `news/[id]`, `events`, `events/[id]`, `users`, `users/[uid]`,
-`submissions/[entity]/[id]`, `site-content/[section]`, `notifications`,
-`export/[dataset]`.
+`submissions/[entity]/[id]`, `notifications`, `export/[dataset]`.
 
 Fiecare endpoint trece prin garda `requireAdmin` înainte de orice operațiune.
 Garda acceptă cookie de sesiune sau header `Authorization: Bearer`, verifică
@@ -79,8 +99,12 @@ URL-urile publice nu s-au schimbat. Panoul este marcat `noindex` și blocat în
 Secțiuni: dashboard cu numărători, Știri și Evenimente cu CRUD complet și slug
 unic validat server-side, participanți per eveniment, Sesizări și Propuneri cu
 detaliu și schimbare de status, Utilizatori cu dezactivare aplicată în Firebase
-Auth prin `updateUser({ disabled })`, Formulare website, Conținut website și
-Notificări.
+Auth prin `updateUser({ disabled })`, Formulare website și Notificări.
+
+Textele paginilor Acasă, Despre noi, Contact, Implică-te și ale paginilor
+juridice sunt statice, versionate în cod. Nu există colecție Firestore, rută API
+sau modul CMS pentru acestea; este o excepție de produs confirmată față de
+formularea inițială din Anexa 1.
 
 Fotografia unei sesizări se vede doar printr-un URL semnat generat la cerere, cu
 expirare scurtă. Bucket-ul nu este public.
@@ -95,6 +119,11 @@ Numele complete sunt în [.env.example](../.env.example). Rezumat:
   `FIREBASE_STORAGE_BUCKET` — **secrete**, exclusiv server-side. Nu se prefixează
   niciodată cu `NEXT_PUBLIC_`.
 - `NEXT_PUBLIC_FIREBASE_APPCHECK_SITE_KEY` și `APPCHECK_MODE` — App Check.
+  Aplicația Expo folosește momentan API-ul server-side fără un token nativ App
+  Check; păstrați `monitor` până când atestarea nativă este configurată și
+  validată pe ambele platforme.
+- `EXPO_ACCESS_TOKEN` — secret server-side opțional pentru proiectele EAS cu
+  Expo Push security activat.
 - `NEXT_PUBLIC_FORMS_ENABLED` — activează trimiterea formularelor din interfață.
 - `REAL_DATA_COLLECTION_ENABLED` — poarta pentru date reale.
 
@@ -127,6 +156,20 @@ Fără credențiale Admin SDK, aplicația pornește și afișează datele mock, 
 formularele semnalează că backendul nu este configurat. Nimic nu se blochează.
 Pentru development, puneți `REAL_DATA_COLLECTION_ENABLED=false` în `.env.local`.
 
+Aplicația mobilă pornește separat:
+
+```bash
+cd ../expo-mobile-app
+cp .env.example .env
+npm install
+npm run start
+```
+
+Variabilele `EXPO_PUBLIC_FIREBASE_*` sunt configurație publică, iar
+`EXPO_PUBLIC_EAS_PROJECT_ID` este UUID-ul proiectului EAS. Niciun service account
+sau `EXPO_ACCESS_TOKEN` nu intră în bundle-ul mobil. Pentru notificări pe
+Android este necesar un development build sau un build instalabil, nu Expo Go.
+
 Primul administrator se creează în Console (Authentication > Users), apoi:
 
 ```bash
@@ -152,9 +195,9 @@ Emulatorul Firestore are nevoie de JDK 21 sau mai nou. Dacă `java` nu este în
 npm run lint
 npm run typecheck
 npm run build
-npm test            # 24 de teste unitare
-npm run test:rules  # 44 de teste de reguli, necesită emulatorul pornit
-npm run test:e2e    # 109 teste Playwright, pornește singur emulatorii
+npm test            # teste unitare Next.js, inclusiv auth/profil/ID idempotent
+npm run test:rules  # 43 de teste de reguli, necesită emulatorul pornit
+npm run test:e2e    # 114 teste Playwright, inclusiv fluxurile API mobile
 ```
 
 Testele de reguli acoperă scenariile din specificație: conținutul publicat este
@@ -239,10 +282,11 @@ ca activ.
 
 ## Limite cunoscute
 
-Recepția efectivă a notificărilor FCM nu poate fi testată acum: depinde de
-integrarea aplicațiilor mobile. Endpoint-ul de trimitere și colecția `pushTokens`
-sunt implementate, iar trimiterea către un token real va funcționa, dar fluxul
-complet rămâne de validat împreună cu aplicația.
+Recepția efectivă a notificărilor nu poate fi validată până la configurarea
+proiectului EAS, a aplicațiilor native Firebase și a credențialelor APNs/FCM.
+Codul separă destinatarii Expo de FCM, trimite în loturi și păstrează
+receipt-urile Expo. La următoarea trimitere manuală, receipt-urile disponibile
+sunt reconciliate, iar tokenurile `DeviceNotRegistered` sunt dezactivate.
 
 ## Excluderi respectate
 

@@ -17,8 +17,9 @@ export async function POST(request: Request) {
     schema: deletionRequestSchema,
     collection: COLLECTIONS.deletionRequests,
     context: "forms/deletion-request",
-    toDocument: ({ email, message }) => ({
-      email,
+    toDocument: ({ email, message }, user) => ({
+      email: user?.email ?? email,
+      uid: user?.uid,
       message: message || undefined,
       status: "new",
       updatedAt: FieldValue.serverTimestamp(),

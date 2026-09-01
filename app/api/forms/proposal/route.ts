@@ -13,9 +13,10 @@ export async function POST(request: Request) {
     schema: proposalSchema,
     collection: COLLECTIONS.proposals,
     context: "forms/proposal",
-    toDocument: ({ name, email, title, description }) => ({
+    toDocument: ({ name, email, title, description }, user) => ({
       name,
-      email,
+      email: user?.email ?? email,
+      uid: user?.uid,
       title,
       description,
       status: "new",

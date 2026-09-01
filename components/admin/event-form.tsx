@@ -11,6 +11,7 @@ import {
   SaveStateIndicator,
   useAdminAction,
 } from "@/components/admin/admin-form-state"
+import { CoverImageField, contentFormData } from "@/components/admin/cover-image-field"
 import { DeleteEntityButton } from "@/components/admin/delete-entity-button"
 import {
   AdminField,
@@ -38,6 +39,8 @@ export function EventForm({ item }: { item?: EventDoc }) {
   const router = useRouter()
   const { state, run } = useAdminAction()
   const [slugTouched, setSlugTouched] = useState(Boolean(item))
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [removeImage, setRemoveImage] = useState(false)
 
   const {
     register,
@@ -52,7 +55,6 @@ export function EventForm({ item }: { item?: EventDoc }) {
       slug: item?.slug ?? "",
       title: item?.title ?? "",
       description: item?.description ?? "",
-      imageUrl: item?.imageUrl ?? "",
       startDate: item?.startDate ?? new Date().toISOString(),
       endDate: item?.endDate ?? "",
       location: item?.location ?? "",
@@ -68,14 +70,15 @@ export function EventForm({ item }: { item?: EventDoc }) {
       () =>
         fetch(item ? `/api/admin/events/${item.id}` : "/api/admin/events", {
           method: item ? "PATCH" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
+          body: contentFormData(values, imageFile, removeImage),
         }),
       item ? "Evenimentul a fost actualizat." : "Evenimentul a fost creat.",
     )
 
     if (succeeded) {
       reset(values, { keepValues: true })
+      setImageFile(null)
+      setRemoveImage(false)
       router.refresh()
       if (!item) router.push("/admin/evenimente")
     }
@@ -186,15 +189,19 @@ export function EventForm({ item }: { item?: EventDoc }) {
             </SectionCard>
 
             <SectionCard title="Imagine">
-              <FormField
-                name="imageUrl"
-                label="Adresa imaginii"
-                optional
-                hint="Adresă completă către imaginea evenimentului."
-                error={errors.imageUrl}
-              >
-                <Input type="url" {...register("imageUrl")} />
-              </FormField>
+              <CoverImageField
+                existingUrl={item?.imageUrl}
+                file={imageFile}
+                removed={removeImage}
+                onFileChange={(file) => {
+                  setImageFile(file)
+                  setRemoveImage(false)
+                }}
+                onRemove={() => {
+                  setImageFile(null)
+                  setRemoveImage(true)
+                }}
+              />
             </SectionCard>
           </>
         }
@@ -266,7 +273,10 @@ export function EventForm({ item }: { item?: EventDoc }) {
                   label={item ? "Salvează modificările" : "Creează evenimentul"}
                   className="w-full"
                 />
-                <SaveStateIndicator isDirty={isDirty} state={state} />
+                <SaveStateIndicator
+                  isDirty={isDirty || Boolean(imageFile) || removeImage}
+                  state={state}
+                />
               </div>
 
               {item ? (

@@ -21,11 +21,10 @@ import { afterAll, beforeAll, beforeEach, describe, it } from "vitest"
 /**
  * Verifică regulile Cloud Storage pe emulator.
  *
- * Modelul este mai strict decât la Firestore: bucket-ul nu are niciun folder
- * public. Fotografiile sesizărilor se încarcă exclusiv prin Admin SDK din
- * `lib/storage/report-photo.ts` și se citesc doar prin URL semnat, generat
- * server-side pentru administratorii autorizați. Clientul nu are voie nimic,
- * indiferent dacă este autentificat sau are claim de administrator.
+ * Modelul este mai strict decât la Firestore: clientul SDK nu poate citi sau
+ * scrie nimic. Fotografiile sesizărilor se încarcă exclusiv prin Admin SDK și
+ * se citesc prin URL semnat. Coperțile de conținut sunt publice prin ACL GCS,
+ * nu prin regulile Firebase; SDK-ul din browser rămâne totuși refuzat.
  *
  * Pornire prealabilă: npm run emulators
  */
@@ -173,5 +172,15 @@ describe("restul bucket-ului", () => {
   it("nu permite scrierea în afara folderului de sesizări", async () => {
     const storage = testEnv.authenticatedContext("membru").storage()
     await assertFails(uploadBytes(ref(storage, "oriunde/fisier.png"), BYTES))
+  })
+
+  it("refuză încărcarea unei coperți de știre din client", async () => {
+    const storage = testEnv
+      .authenticatedContext("administrator", { role: "admin" })
+      .storage()
+
+    await assertFails(
+      uploadBytes(ref(storage, "content/news/item-1/cover.webp"), BYTES),
+    )
   })
 })

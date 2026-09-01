@@ -10,6 +10,7 @@ import { z } from "zod"
 import { FormField } from "@/components/forms/form-elements"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
 import { getFirebaseAuth, isFirebaseClientConfigured } from "@/lib/firebase/client"
 
 const schema = z.object({
@@ -89,8 +90,7 @@ export function LoginForm() {
         <Input type="email" autoComplete="email" {...register("email")} />
       </FormField>
       <FormField name="password" label="Parolă" error={errors.password}>
-        <Input
-          type="password"
+        <PasswordInput
           autoComplete="current-password"
           {...register("password")}
         />

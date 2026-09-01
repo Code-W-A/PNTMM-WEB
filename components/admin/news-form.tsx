@@ -11,6 +11,7 @@ import {
   SaveStateIndicator,
   useAdminAction,
 } from "@/components/admin/admin-form-state"
+import { CoverImageField, contentFormData } from "@/components/admin/cover-image-field"
 import { DeleteEntityButton } from "@/components/admin/delete-entity-button"
 import {
   AdminField,
@@ -37,6 +38,8 @@ export function NewsForm({ item }: { item?: NewsDoc }) {
   const router = useRouter()
   const { state, run } = useAdminAction()
   const [slugTouched, setSlugTouched] = useState(Boolean(item))
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [removeImage, setRemoveImage] = useState(false)
 
   const {
     register,
@@ -53,7 +56,6 @@ export function NewsForm({ item }: { item?: NewsDoc }) {
       excerpt: item?.excerpt ?? "",
       content: item?.content ?? "",
       category: item?.category ?? "",
-      imageUrl: item?.imageUrl ?? "",
       publishedAt: item?.publishedAt ?? new Date().toISOString(),
       status: item?.status ?? "draft",
     },
@@ -65,8 +67,7 @@ export function NewsForm({ item }: { item?: NewsDoc }) {
       () =>
         fetch(item ? `/api/admin/news/${item.id}` : "/api/admin/news", {
           method: item ? "PATCH" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
+          body: contentFormData(values, imageFile, removeImage),
         }),
       item ? "Știrea a fost actualizată." : "Știrea a fost creată.",
     )
@@ -74,6 +75,8 @@ export function NewsForm({ item }: { item?: NewsDoc }) {
     if (succeeded) {
       // Resetarea aduce formularul la starea „fără modificări nesalvate”.
       reset(values, { keepValues: true })
+      setImageFile(null)
+      setRemoveImage(false)
       router.refresh()
       if (!item) router.push("/admin/stiri")
     }
@@ -134,15 +137,19 @@ export function NewsForm({ item }: { item?: NewsDoc }) {
             </SectionCard>
 
             <SectionCard title="Imagine">
-              <FormField
-                name="imageUrl"
-                label="Adresa imaginii"
-                optional
-                hint="Adresă completă către imaginea articolului."
-                error={errors.imageUrl}
-              >
-                <Input type="url" {...register("imageUrl")} />
-              </FormField>
+              <CoverImageField
+                existingUrl={item?.imageUrl}
+                file={imageFile}
+                removed={removeImage}
+                onFileChange={(file) => {
+                  setImageFile(file)
+                  setRemoveImage(false)
+                }}
+                onRemove={() => {
+                  setImageFile(null)
+                  setRemoveImage(true)
+                }}
+              />
             </SectionCard>
           </>
         }
@@ -214,7 +221,10 @@ export function NewsForm({ item }: { item?: NewsDoc }) {
                   label={item ? "Salvează modificările" : "Creează știrea"}
                   className="w-full"
                 />
-                <SaveStateIndicator isDirty={isDirty} state={state} />
+                <SaveStateIndicator
+                  isDirty={isDirty || Boolean(imageFile) || removeImage}
+                  state={state}
+                />
               </div>
 
               {item ? (

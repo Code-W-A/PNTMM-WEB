@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "next dev -p 3002",
     "lint": "eslint . --ext .js,.mjs,.ts,.tsx",
     "start": "next start",
     "typecheck": "tsc --noEmit",
@@ -55,6 +55,7 @@
     "cmdk": "latest",
     "date-fns": "4.1.0",
     "embla-carousel-react": "latest",
+    "expo-server-sdk": "^4.0.0",
     "firebase": "^12.17.1",
     "firebase-admin": "^14.2.0",
     "framer-motion": "latest",

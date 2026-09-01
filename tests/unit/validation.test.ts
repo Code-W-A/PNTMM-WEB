@@ -9,6 +9,7 @@ import {
   proposalSchema,
   reportSchema,
 } from "@/lib/validation/forms"
+import { mobileProfileSchema } from "@/lib/validation/mobile"
 
 const validContact = {
   name: "Ion Popescu",
@@ -150,5 +151,21 @@ describe("validarea conținutului administrat", () => {
     })
 
     expect(result.success).toBe(false)
+  })
+})
+
+describe("validarea profilului mobil", () => {
+  it("acceptă actualizarea parțială a telefonului sau preferinței push", () => {
+    expect(mobileProfileSchema.safeParse({ phone: "+40 700 000 000" }).success).toBe(true)
+    expect(
+      mobileProfileSchema.safeParse({
+        notificationPreferences: { general: false },
+      }).success,
+    ).toBe(true)
+  })
+
+  it("respinge un patch gol și numele prea scurt", () => {
+    expect(mobileProfileSchema.safeParse({}).success).toBe(false)
+    expect(mobileProfileSchema.safeParse({ displayName: "A" }).success).toBe(false)
   })
 })

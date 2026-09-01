@@ -12,21 +12,9 @@ export const COLLECTIONS = {
   contactMessages: "contactMessages",
   interestSubmissions: "interestSubmissions",
   deletionRequests: "deletionRequests",
-  siteContent: "siteContent",
   notifications: "notifications",
   pushTokens: "pushTokens",
   adminActions: "adminActions",
 } as const
 
 export type CollectionName = (typeof COLLECTIONS)[keyof typeof COLLECTIONS]
-
-/** Documentele fixe din colecția siteContent. */
-export const SITE_CONTENT_KEYS = [
-  "home",
-  "about",
-  "contact",
-  "involvement",
-  "legal",
-] as const
-
-export type SiteContentKey = (typeof SITE_CONTENT_KEYS)[number]

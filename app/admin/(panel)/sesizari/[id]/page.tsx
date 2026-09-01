@@ -94,6 +94,10 @@ export default async function ReportDetailPage({
                   label: "Primită la",
                   value: formatDateTime(report.createdAt),
                 },
+                {
+                  label: "Cont asociat",
+                  value: report.uid ?? "Fără cont autentificat",
+                },
               ]}
             />
           </SectionCard>

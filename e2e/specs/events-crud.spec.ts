@@ -6,6 +6,7 @@ import {
   confirmDialog,
   dateTimeLocal,
   expectToast,
+  onePixelPng,
   rowWith,
   unique,
 } from "../fixtures/helpers"
@@ -196,6 +197,29 @@ test.describe("CRUD evenimente", () => {
     await chooseOption(page.getByLabel("Filtrează după dată"), "Încheiate")
     await expect(rowWith(page, SEED.pastEvent.title)).toBeVisible()
     await expect(rowWith(page, SEED.upcomingEvent.title)).toBeHidden()
+  })
+
+  test("imaginea de copertă se încarcă și se păstrează la editare", async ({
+    page,
+  }) => {
+    const slug = unique("eveniment-imagine")
+    const title = `Eveniment cu imagine ${slug}`
+
+    await page.goto("/admin/evenimente/nou")
+    await fillEventForm(page, { slug, title })
+    await page.getByLabel("Imagine de copertă").setInputFiles({
+      name: "coperta.png",
+      mimeType: "image/png",
+      buffer: onePixelPng(),
+    })
+    await expect(page.getByAltText("Previzualizare copertă")).toBeVisible()
+    await page.getByRole("button", { name: "Creează evenimentul" }).click()
+    await page.waitForURL("**/admin/evenimente")
+
+    await rowWith(page, title)
+      .getByRole("link", { name: "Editează evenimentul" })
+      .click()
+    await expect(page.getByAltText("Previzualizare copertă")).toBeVisible()
   })
 
   test("ștergerea scoate evenimentul din listă și de pe website", async ({

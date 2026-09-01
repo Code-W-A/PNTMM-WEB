@@ -8,8 +8,8 @@ rules_version = '2';
 // descriu exclusiv ce poate face un client (browser sau aplicație mobilă).
 //
 // Regula implicită este refuzul. Clientul primește drept de citire numai
-// pentru conținutul destinat publicului: știri și evenimente publicate și
-// textele site-ului. Nicio colecție cu date personale nu este lizibilă public.
+// pentru știrile și evenimentele publicate. Textele fixe ale website-ului sunt
+// versionate în cod. Nicio colecție cu date personale nu este lizibilă public.
 // =============================================================================
 
 service cloud.firestore {
@@ -28,11 +28,6 @@ service cloud.firestore {
 
     match /events/{eventId} {
       allow read: if isPublished();
-      allow write: if false;
-    }
-
-    match /siteContent/{sectionId} {
-      allow read: if true;
       allow write: if false;
     }
 
