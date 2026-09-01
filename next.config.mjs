@@ -3,14 +3,17 @@ const nextConfig = {
   // Buildul pentru testele E2E folosește un director separat, ca să nu
   // suprascrie buildul obișnuit din `.next`.
   distDir: process.env.NEXT_DIST_DIR || ".next",
-  // Fără asta, webpack împachetează firebase-admin greșit și rutele /api/*
-  // cad cu pagina HTML 500, deși paginile ISR (construite în Node) merg.
-  serverExternalPackages: [
-    "firebase-admin",
-    "@google-cloud/firestore",
-    "@google-cloud/storage",
-    "sharp",
-  ],
+  // firebase-admin e deja pe lista implicită de pachete externe; fără tracing
+  // explicit, funcțiile /api de pe Vercel pornesc fără modul și cad pe /500.
+  outputFileTracingIncludes: {
+    "/*": [
+      "./node_modules/firebase-admin/**/*",
+      "./node_modules/@google-cloud/firestore/**/*",
+      "./node_modules/@google-cloud/storage/**/*",
+      "./node_modules/@grpc/grpc-js/**/*",
+      "./node_modules/sharp/**/*",
+    ],
+  },
   webpack(config) {
     if (process.env.DISABLE_WEBPACK_CACHE === "1") {
       config.cache = false
