@@ -28,12 +28,3 @@ export function EventList({
     </div>
   )
 }
-
-  return (
-    <div className="grid min-w-0 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {items.map((event) => (
-        <EventCard key={event.id} event={event} />
-      ))}
-    </div>
-  )
-}
