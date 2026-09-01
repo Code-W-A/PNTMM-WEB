@@ -4,7 +4,8 @@ import { cookies } from "next/headers"
 import type { DecodedIdToken } from "firebase-admin/auth"
 
 import { ApiError } from "@/lib/api/http"
-import { getAdminAuth, isFirebaseAdminConfigured } from "@/lib/firebase/admin"
+import { getAdminAuth } from "@/lib/firebase/admin-auth"
+import { isFirebaseAdminConfigured } from "@/lib/firebase/admin"
 import { SESSION_COOKIE_NAME, verifySessionCookie } from "@/lib/auth/session"
 
 export interface AdminContext {

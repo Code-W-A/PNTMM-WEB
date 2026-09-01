@@ -1,7 +1,6 @@
 import "server-only"
 
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app"
-import { getAuth, type Auth } from "firebase-admin/auth"
 import { getFirestore, type Firestore } from "firebase-admin/firestore"
 import { getMessaging, type Messaging } from "firebase-admin/messaging"
 import { getStorage } from "firebase-admin/storage"
@@ -70,10 +69,6 @@ export function getAdminApp(): App {
   )
 
   return cachedApp
-}
-
-export function getAdminAuth(): Auth {
-  return getAuth(getAdminApp())
 }
 
 type AdminGlobals = typeof globalThis & {

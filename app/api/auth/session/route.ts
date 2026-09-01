@@ -9,7 +9,8 @@ import {
   sessionCookieOptions,
   verifySessionCookie,
 } from "@/lib/auth/session"
-import { getAdminAuth, isFirebaseAdminConfigured } from "@/lib/firebase/admin"
+import { getAdminAuth } from "@/lib/firebase/admin-auth"
+import { isFirebaseAdminConfigured } from "@/lib/firebase/admin"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"

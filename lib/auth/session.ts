@@ -4,7 +4,7 @@ import {
   SESSION_COOKIE_NAME,
   SESSION_MAX_AGE_SECONDS,
 } from "@/lib/auth/constants"
-import { getAdminAuth } from "@/lib/firebase/admin"
+import { getAdminAuth } from "@/lib/firebase/admin-auth"
 
 export { SESSION_COOKIE_NAME, SESSION_MAX_AGE_SECONDS }
 

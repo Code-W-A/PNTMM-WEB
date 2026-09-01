@@ -3,7 +3,8 @@ import "server-only"
 import { FieldValue } from "firebase-admin/firestore"
 
 import type { UserContext } from "@/lib/auth/require-user"
-import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin"
+import { getAdminAuth } from "@/lib/firebase/admin-auth"
+import { getAdminDb } from "@/lib/firebase/admin"
 import { COLLECTIONS } from "@/lib/firebase/collections"
 import type { MobileProfileInput } from "@/lib/validation/mobile"
 
